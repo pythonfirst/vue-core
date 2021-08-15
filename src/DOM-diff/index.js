@@ -113,16 +113,53 @@ function diff(n1, n2) {
       e1--;
     }
   }
-  
-  // 开始dom diff 的核心
-  // 
-  const oldToNewIndexMap = new Map();
-  // 遍历旧节点，建立map
-  while (i<=e1) {
-    oldToNewIndexMap.set(n1[i].props[0].key, i)
-    e1--;
-  }
 
+  // 需要做DOM diff的情况
+  if (i < e1 && i<e2) { 
+    const s1 = i;
+    const s2 = i
+    // 新数组
+    let toBePatched = e2-i+1;
+
+
+    // 存储新node中key对应的新的索引。
+    let keyToNewIndexMap = new Map();
+    // 新node在旧node的索引
+    let arr = new Array(toBePatched).fill(-1);
+    // 遍历新node,填充keyToNewIndexMap
+    for (let i=0; i<toBePatched; i++) {
+      keyToNewIndexMap.set(n2[i].props[0].key, i);
+    }
+
+    let moved = false;
+    // 遍历旧节点 
+    for (i=s1; i<=e1; i++) {
+      // 拿到旧节点
+      const preChild = n1[i];
+
+      // 如果pached的大于已经patched,则删除及卸载节点
+      if (patched >= toBePatched) {
+        // todo:删除旧节点
+        n1.splice(i, 1);
+        i--;
+        e1--;
+        continue
+      }
+
+      // 查找旧子序列的节点在新子序列中的索引
+      let newIndex = keyToNewIndexMap.get(preChild.props[0].key);
+      // 如果该旧节点不存在在新node中，删除该节点。
+      if (newIndex === undefined) {
+        n1.splice(i, 1);
+        i--;
+        e1--;
+      } else {
+        // 更新arr即新node中待patch元素在
+        arr[newIndex-s2] = i;
+      }
+    }
+
+  }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 }
 
@@ -132,4 +169,3 @@ function diff(n1, n2) {
 diff(oldNode.children, newNode.children)
 
 console.log('old', JSON.stringify(oldNode))
-

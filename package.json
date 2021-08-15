@@ -1,0 +1,20 @@
+{
+  "name": "vue-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev":  "browser-sync start --server --files './'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pythonfirst/vue-core.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pythonfirst/vue-core/issues"
+  },
+  "homepage": "https://github.com/pythonfirst/vue-core#readme"
+}
