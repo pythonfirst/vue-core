@@ -1,4 +1,5 @@
 import { ShapeFlags } from "../shared/src/shapeFlags.js";
+import { PatchFlags } from "../shared/src/patchFlags.js";
 import { nodeOps } from "./nodeOps.js";
 import { isSameVNodeType } from "./h.js";
 
@@ -89,7 +90,7 @@ function mountElement(vnode, container) {
 
   // 递归挂载子节点
   if (vnode.children && typeof vnode.children === 'string') {
-    el.textContent = vnode.children
+    el.textContent = vnode.children;
   } else if (vnode.children && Array.isArray(vnode.children)) {
     if (vnode.children.length) {
       for (let childVNode of vnode.children) {
@@ -111,6 +112,10 @@ function mountElement(vnode, container) {
 function setAttribute(props, el) {
   
 }
+
+function processText() {
+
+};
 
 function processElement(n1, n2, container) {
   // 旧node没有，则直接挂载新node
@@ -140,6 +145,9 @@ function processElement(n1, n2, container) {
         }
       }
     }
+
+    // patch 子节点
+    patchChildren(n1, n2, el)
   }
 }
 
@@ -176,5 +184,100 @@ function patchProps(el, nextProps, preProps, k, next) {
       break
     default:
       el.setAttribute(k, next);
+  }
+}
+
+/**
+ * patch 子节点
+ * @param {*} n1 
+ * @param {*} n2 
+ * @param {*} el 
+ */
+function patchChildren(n1, n2, el) {
+
+  const { patchFlag, shapeFlag } = n2;
+
+  if (patchFlag > 0) {
+    if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
+      patchKeyedChildren(n1, n2, el);
+      return
+    } else if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
+      patchUnKeyedChildren(n1, n2, el)
+    }
+  }
+}
+
+function patchKeyedChildren(n1, n2, el) {
+  const c1 = n1?.children || [];
+  const c2 = n2?.children || [];
+
+  const l1 = c1.length;
+  const l2 = c2.length;
+  const commonLength = Math.min(l1, l2);
+
+  // 遍历新旧节点，分别进行patch
+  for (let i=0; i<commonLength; i++) {
+    patch(c1[i], c2[i])
+  }
+
+  // 旧节点数量多于新节点，移除多余旧节点
+  if (l1 > l2) {
+    unmountChildren(c1, commonLength)
+  }
+
+  if (l1 < l2) {
+    mountChildren(c2, commonLength, el);
+  }
+
+}
+
+function patchUnKeyedChildren(n1, n2, el) {
+  // console.log(n1, n2)
+  const c1 = n1?.children || [];
+  const c2 = n2?.children || [];
+
+  if (Array.isArray(n1) && Array.isArray(n2)) {
+
+    const l1 = c1.length;
+    const l2 = c2.length;
+    const commonLength = Math.min(l1, l2);
+
+    // 遍历新旧节点，分别进行patch
+    for (let i=0; i<commonLength; i++) {
+      console.log(c1[i], c2[i], i)
+      patch(c1[i], c2[i])
+    }
+
+    // 旧节点数量多于新节点，移除多余旧节点
+    if (l1 > l2) {
+      unmountChildren(c1, commonLength)
+    }
+
+    if (l1 < l2) {
+      mountChildren(c2, commonLength, el);
+    }
+  } else {
+    if (Array.isArray(c1)) {
+      // console.log(c1, c2, el)
+      // el.textContent = ''
+      // patch(null, n2, el)
+    } else {
+      el.textContent = '';
+      mountChildren(n2, 0, el)
+    }
+  }
+}
+
+function unmountChildren(n, start) {
+  for (let i=start; i<n.length; i++) {
+    // console.log('n[i]', n[i])
+    unmount(n[i].el)
+  }
+}
+
+function mountChildren(n, start, el) {
+  const children = n.children || [];
+  for (let i=start; i< children.length; i++) {
+    patch(null, children[i], el)
   }
 }

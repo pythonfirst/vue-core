@@ -14,21 +14,26 @@ const vnode = h('ul', { style: {
     class: 'hello',
     style: {
       color: 'white',
-      fontSize: '28px'
+      fontSize: '20px'
     },
     key: 'b'
-  }, 'hello')
+  }, [
+    h('li',null, 'a'),
+    h('li',null, 'b'),
+    h('li',null, 'c'),
+  ], 1<<8)
 
   const textNode2 = h('div', {
     class: 'red',
     style: {
       color: 'blue',
     },
-    key: 'a'
+    key: 'a',
   }, 'world')
   
-render(textNode, nodeOps.querySelector('#app'))
+render(textNode2, nodeOps.querySelector('#app'))
 setTimeout(() => {
-  render(textNode2, nodeOps.querySelector('#app'))
+  render(textNode, nodeOps.querySelector('#app'))
+  console.log(textNode)
 }, 3000)
-console.log(vnode)
+console.log(textNode2)
