@@ -196,7 +196,21 @@ function patchProps(el, nextProps, preProps, k, next) {
 function patchChildren(n1, n2, el) {
 
   const { patchFlag, shapeFlag } = n2;
+  const c1 = n1.children ?? [];
+  const c2 = n2.children ?? [];
+  // 如果c2不是数组节点则直接卸载老节点，挂载新节点
+  if (!Array.isArray(c2) && Array.isArray(c1)) {
+    unmountChildren(n1, 0);
+    el.textContent = n2.children;
+    return
+  }
 
+  if (!Array.isArray(c1) && Array.isArray(c2)) {
+    el.textContent = '';
+    mountChildren(n2, 0, el)
+  }
+
+  //
   if (patchFlag > 0) {
     if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
       patchKeyedChildren(n1, n2, el);

@@ -29,11 +29,11 @@ const vnode = h('ul', { style: {
       color: 'blue',
     },
     key: 'a',
-  }, 'world')
+  }, 'hello', 1)
   
-render(textNode2, nodeOps.querySelector('#app'))
+render(textNode, nodeOps.querySelector('#app'))
 setTimeout(() => {
-  render(textNode, nodeOps.querySelector('#app'))
-  console.log(textNode)
+  render(textNode2, nodeOps.querySelector('#app'))
+  console.log(textNode2)
 }, 3000)
-console.log(textNode2)
+console.log(textNode)
